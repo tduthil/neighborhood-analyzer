@@ -120,9 +120,10 @@ uploaded_file = st.file_uploader("Please Upload Neighborhood Sales Data (.csv)",
 #original
 #if uploaded_file is not None:
 #    data = pd.read_csv(uploaded_file, sep='$', skiprows=1, header=0)
+#    data = pd.read_csv(uploaded_file, engine='python', skiprows=1, header=0) other option
 #end original
 if uploaded_file is not None:
-    data = pd.read_csv(uploaded_file, engine='python', skiprows=1, header=0)
+    data = pd.read_csv(uploaded_file, sep='$', skiprows=1, header=0)
     #troubleshooting upload
     st.write(data.head())  # Print the first few rows
     st.write(data.shape)
