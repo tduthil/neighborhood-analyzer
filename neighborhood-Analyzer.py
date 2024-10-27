@@ -124,6 +124,7 @@ uploaded_file = st.file_uploader("Please Upload Neighborhood Sales Data (.csv)",
 if uploaded_file is not None:
     data = pd.read_csv(uploaded_file, engine='python', skiprows=1, header=0)
     #troubleshooting upload
+    st.write(data.head())  # Print the first few rows
     st.write(data.shape)
     # Specify the correct column names
     data.columns = ['Property Address', 'saleDate', 'saleAmount', 'Bedrooms', 'Bathrooms', 'squareFeet', 'year', 'seller', 'buyer', 'Parcel ID', 'totalCount', 'Link']
