@@ -1,3 +1,13 @@
 [user]
     name = Thierry Duthil
     email = tduthil152+github@gmail.com
+
+# Standard Python
+*.pyc
+__pycache__/
+venv/
+venv1/
+
+# Streamlit-specific
+.streamlit/
+secrets.toml
