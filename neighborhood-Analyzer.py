@@ -24,12 +24,13 @@ st.set_page_config(
 ######PAGE TITLE#######################
 st.title("     🏘️Neighborhood Analyzer :chart_with_upwards_trend:")
 st.markdown("How to Use")
-st.markdown("1. Navigate to your county property appraiser's site. Ex.")
-st.markdown("  - Orange County FL: https://ocpaweb.ocpafl.org/parcelsearch")
-st.markdown("2. Enter Search criteria")
-st.markdown("3. Download csv files")
-st.markdown("4. Upload csv files")
-st.markdown("5. Follow on-page instructions")
+st.markdown("1. Navigate to your county property appraiser's site.")
+st.markdown("2. Look for Advanced Search or Sales Search")
+st.markdown("    - Orange County FL: https://ocpaweb.ocpafl.org/parcelsearch")
+st.markdown("3. Enter Search criteria")
+st.markdown("4. Download csv files")
+st.markdown("5. Upload csv files")
+st.markdown("6. Follow on-page instructions")
 ######PAGE TITLE#######################
 
 # Initialize an empty DataFrame
