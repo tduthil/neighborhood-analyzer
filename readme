@@ -1,0 +1,9 @@
+#1. Create a Virtual Environment:
+python -m venv venv1 (venv)
+
+#2. Activate the Environment:
+source venv1/Scripts/activate
+
+#3. Install Required Packages:
+Use pip install (or conda install) to install necessary packages:
+pip install numpy pandas matplotlib
