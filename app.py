@@ -18,6 +18,7 @@ from src.analyzers.neighborhood_analyzer import NeighborhoodAnalyzer
 from src.visualizers.chart_creator import create_price_trends_chart, create_price_distribution_chart
 from src.visualizers.metrics_display import display_metrics
 from src.analyzers.subject_property_analyzer import SubjectPropertyAnalyzer
+from src.analyzers.unit_analyzer import get_unit_stats, display_unit_analysis, display_unit_price_charts
 
 def get_subject_property_details():
     """Get subject property details from user input."""
@@ -101,21 +102,32 @@ def preprocess_seminole_format(file_content):
             numbers = re.findall(r'\b\d+\.?\d*\b', line)
             
             if date and price and len(numbers) >= 3:
-                bed = next((n for n in numbers if float(n) < 5), None)
-                bath = next((n for n in numbers if '.' in n), None)
-                sqft = next((n for n in numbers if float(n) > 1000 and float(n) < 5000), None)
+                bed = next((float(n) for n in numbers if float(n) < 5), None)
+                bath = next((float(n) for n in numbers if '.' in str(n)), None)
+                sqft = next((float(n) for n in numbers if float(n) > 1000 and float(n) < 5000), None)
                 
-                if all([bed, bath, sqft]):
+                if all(v is not None for v in [bed, bath, sqft]):
+                    # Clean price value
+                    price_str = price.group(0)
+                    price_val = float(price_str.replace('$', '').replace(',', ''))
+                    
                     processed_data.append({
                         'Property Address': current_address,
                         'Date': date.group(0),
-                        'Sale Amount': price.group(0),
+                        'Sale Amount': price_val,  # Store as float
                         'Bed': bed,
                         'Bath': bath,
                         'Living': sqft
                     })
     
-    return pd.DataFrame(processed_data)
+    df = pd.DataFrame(processed_data)
+    
+    # Ensure numeric types
+    numeric_columns = ['Sale Amount', 'Bed', 'Bath', 'Living']
+    for col in numeric_columns:
+        df[col] = pd.to_numeric(df[col], errors='coerce')
+    
+    return df
 
 def read_standard_csv(file_content):
     """Read a standard CSV file."""
@@ -167,70 +179,78 @@ def main():
             analyzer = NeighborhoodAnalyzer(df, mapped_headers)
             stats = analyzer.get_basic_stats()
             
-            display_metrics(stats)
+            # Create tabs for different analyses
+            tab1, tab2, tab3 = st.tabs(["Neighborhood Overview", "Unit Analysis", "Subject Property Analysis"])
             
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                if 'date' in mapped_headers:
-                    price_trends = create_price_trends_chart(
-                        df, 
-                        mapped_headers['date'], 
+            with tab1:
+                # Existing neighborhood metrics and charts
+                display_metrics(stats)
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    if 'date' in mapped_headers:
+                        price_trends = create_price_trends_chart(
+                            df, 
+                            mapped_headers['date'], 
+                            mapped_headers['price']
+                        )
+                        st.plotly_chart(price_trends, use_container_width=True)
+                
+                with col2:
+                    price_dist = create_price_distribution_chart(
+                        df,
                         mapped_headers['price']
                     )
-                    st.plotly_chart(price_trends, use_container_width=True)
+                    st.plotly_chart(price_dist, use_container_width=True)
             
-            with col2:
-                price_dist = create_price_distribution_chart(
-                    df,
-                    mapped_headers['price']
-                )
-                st.plotly_chart(price_dist, use_container_width=True)
-
-            # Add subject property analysis
-            st.markdown("---")
-            subject_property = get_subject_property_details()
+            with tab2:
+                st.subheader("Price Analysis by Unit Type")
+                # Add the unit breakdown analysis
+                unit_stats = get_unit_stats(df, mapped_headers)
+                display_unit_analysis(unit_stats)
+                
+                # Option to show visualization of price/sqft by unit type
+                if st.checkbox("Show Price/Sqft Distribution by Unit Type"):
+                    display_unit_price_charts(unit_stats)
             
-            if all(subject_property.values()): # Check if all fields are filled
-                analyzer = SubjectPropertyAnalyzer(df, mapped_headers, subject_property)
+            with tab3:
+                # Subject property analysis
+                subject_property = get_subject_property_details()
                 
-                # Get analysis results
-                comparison_results = analyzer.get_comparison_results()
-                decision = analyzer.get_decision()
-                
-                # Display results
-                st.subheader("Subject Property Analysis")
-                
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    neighborhood_avg = comparison_results['neighborhood_avg']
-                    display_value = f"${neighborhood_avg:,.2f}" if pd.notna(neighborhood_avg) else "No Data"
-                    st.metric("Neighborhood Avg", display_value)
+                if all(subject_property.values()): # Check if all fields are filled
+                    analyzer = SubjectPropertyAnalyzer(df, mapped_headers, subject_property)
+                    comparison_results = analyzer.get_comparison_results()
+                    decision = analyzer.get_decision()
                     
-                with col2:
-                    similar_avg = comparison_results['similar_models_avg']
-                    display_value = f"${similar_avg:,.2f}" if pd.notna(similar_avg) else "No Similar Models Found"
-                    st.metric("Similar Models Avg", display_value)
+                    col1, col2, col3 = st.columns(3)
                     
-                with col3:
-                    exact_avg = comparison_results['exact_models_avg']
-                    display_value = f"${exact_avg:,.2f}" if pd.notna(exact_avg) else "No Exact Matches Found"
-                    st.metric("Exact Models Avg", display_value)
-                
-                # Display decision with appropriate color
-                decision_color = {
-                    "BUY": "green",
-                    "INVESTIGATE": "yellow",
-                    "PASS": "red"
-                }
-                st.markdown(
-                    f"<h2 style='text-align: center; color: {decision_color[decision]};'>{decision}</h2>",
-                    unsafe_allow_html=True
-                )
-                
-                # Add visualization
-                analyzer.plot_comparison_chart()
+                    with col1:
+                        neighborhood_avg = comparison_results['neighborhood_avg']
+                        display_value = f"${neighborhood_avg:,.2f}" if pd.notna(neighborhood_avg) else "No Data"
+                        st.metric("Neighborhood Avg", display_value)
+                    
+                    with col2:
+                        similar_avg = comparison_results['similar_models_avg']
+                        display_value = f"${similar_avg:,.2f}" if pd.notna(similar_avg) else "No Similar Models Found"
+                        st.metric("Similar Models Avg", display_value)
+                    
+                    with col3:
+                        exact_avg = comparison_results['exact_models_avg']
+                        display_value = f"${exact_avg:,.2f}" if pd.notna(exact_avg) else "No Exact Matches Found"
+                        st.metric("Exact Models Avg", display_value)
+                    
+                    # Decision and visualization
+                    decision_color = {
+                        "BUY": "green",
+                        "INVESTIGATE": "yellow",
+                        "PASS": "red"
+                    }
+                    st.markdown(
+                        f"<h2 style='text-align: center; color: {decision_color[decision]};'>{decision}</h2>",
+                        unsafe_allow_html=True
+                    )
+                    
+                    analyzer.plot_comparison_chart()
             
             with st.expander("View Raw Data"):
                 st.dataframe(df)

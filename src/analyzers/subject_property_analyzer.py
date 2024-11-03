@@ -35,11 +35,15 @@ class SubjectPropertyAnalyzer:
         baths_col = self.headers['baths']
         sqft_col = self.headers['sqft']
         
+        # Define tolerances
+        SQFT_TOLERANCE = 5  # Allow ±5 sqft difference
+        
         mask = (
             (pd.to_numeric(self.df[beds_col], errors='coerce') == self.subject['beds']) &
             (pd.to_numeric(self.df[baths_col], errors='coerce') == self.subject['baths']) &
-            (pd.to_numeric(self.df[sqft_col], errors='coerce') == self.subject['sqft'])
+            (abs(pd.to_numeric(self.df[sqft_col], errors='coerce') - self.subject['sqft']) <= SQFT_TOLERANCE)
         )
+        
         matches = self.df[mask]
         return matches['price_clean'].mean() if not matches.empty else np.nan
     
@@ -106,45 +110,84 @@ class SubjectPropertyAnalyzer:
         }
         
         colors = {
-            'Subject Price': 'red',
-            'Neighborhood Avg': 'blue',
-            'Similar Models Avg': 'green',
-            'Exact Models Avg': 'purple'
+            'Subject Price': '#FF4B4B',      # Brighter red
+            'Neighborhood Avg': '#00CED1',    # Bright turquoise
+            'Similar Models Avg': '#50C878',  # Emerald green
+            'Exact Models Avg': '#BA55D3'     # Bright purple
         }
         
-        for name, value in comparisons.items():
-            if not np.isnan(value):
+        # Calculate range for positioning labels
+        price_range = [
+            min(v for v in comparisons.values() if not pd.isna(v)),
+            max(v for v in comparisons.values() if not pd.isna(v))
+        ]
+        range_size = price_range[1] - price_range[0]
+        
+        # Position labels at different y-coordinates
+        label_positions = {
+            'Subject Price': 1.15,
+            'Neighborhood Avg': 1.10,
+            'Similar Models Avg': 1.05,
+            'Exact Models Avg': 1.00
+        }
+        
+        # Add lines and labels with different positions
+        for i, (name, value) in enumerate(comparisons.items()):
+            if not pd.isna(value):
                 fig.add_vline(
                     x=value,
                     line_dash="dash",
                     line_color=colors[name],
-                    annotation_text=f"{name}: ${value:,.0f}",
-                    annotation_position="top"
+                    annotation={
+                        'text': f"{name}:<br>${value:,.0f}",
+                        'y': label_positions[name],
+                        'yref': 'paper',
+                        'showarrow': False,
+                        'font': {'size': 12, 'color': colors[name]},  # Increased font size from 10 to 12
+                        'bgcolor': 'rgba(14, 17, 23, 0.8)',
+                        'bordercolor': colors[name],
+                        'borderwidth': 2,  # Increased from 1 to 2 for more visibility
+                        'borderpad': 4,
+                        'align': 'center'
+                    }
                 )
         
+        # Update layout with dark theme
         fig.update_layout(
-            title="Subject Property Price Comparison",
+            title={
+                'text': "Subject Property Price Comparison",
+                'y': 0.95,
+                'x': 0.5,
+                'xanchor': 'center',
+                'yanchor': 'top',
+                'font': {'color': 'white'}  # White text for title
+            },
             xaxis_title="Price",
             yaxis_title="Number of Sales",
-            showlegend=True
+            showlegend=True,
+            margin={'t': 100, 'b': 50, 'l': 50, 'r': 50},
+            height=500,
+            plot_bgcolor='#0E1117',    # Dark background
+            paper_bgcolor='#0E1117',   # Dark background
+            font={'color': 'white'},   # White text for all labels
+            xaxis={
+                'gridcolor': 'rgba(255, 255, 255, 0.1)',  # Subtle grid
+                'showgrid': True,
+                'zeroline': False,
+                'title': {'font': {'color': 'white'}},    # White axis title
+                'tickfont': {'color': 'white'}            # White tick labels
+            },
+            yaxis={
+                'gridcolor': 'rgba(255, 255, 255, 0.1)',  # Subtle grid
+                'showgrid': True,
+                'zeroline': False,
+                'title': {'font': {'color': 'white'}},    # White axis title
+                'tickfont': {'color': 'white'}            # White tick labels
+            },
+            legend={
+                'font': {'color': 'white'},               # White legend text
+                'bgcolor': 'rgba(14, 17, 23, 0.8)'        # Semi-transparent dark background
+            }
         )
         
         st.plotly_chart(fig, use_container_width=True)
-
-    def get_exact_models_avg(self):
-        """Get average price for exact matches (beds, baths, sqft with tolerance)."""
-        beds_col = self.headers['beds']
-        baths_col = self.headers['baths']
-        sqft_col = self.headers['sqft']
-        
-        # Define tolerances
-        SQFT_TOLERANCE = 5  # Allow ±5 sqft difference
-        
-        mask = (
-            (pd.to_numeric(self.df[beds_col], errors='coerce') == self.subject['beds']) &
-            (pd.to_numeric(self.df[baths_col], errors='coerce') == self.subject['baths']) &
-            (abs(pd.to_numeric(self.df[sqft_col], errors='coerce') - self.subject['sqft']) <= SQFT_TOLERANCE)
-        )
-        
-        matches = self.df[mask]
-        return matches['price_clean'].mean() if not matches.empty else np.nan

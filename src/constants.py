@@ -12,7 +12,7 @@ HEADER_MAPPINGS = {
 }
 
 # Required fields for analysis
-REQUIRED_FIELDS = ['price']  # Made only price required since some files might not have sqft
+REQUIRED_FIELDS = ['price']
 
 # Custom CSS
 CUSTOM_CSS = """
@@ -29,6 +29,34 @@ CUSTOM_CSS = """
     }
     div[data-testid="stMetricValue"] {
         color: #782F40;
+    }
+    
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+        background-color: #782F40;
+        padding: 10px 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        padding: 0px 24px;
+        background-color: white;
+        border-radius: 4px;
+        color: #782F40;
+        font-weight: 600;
+        border-left: 1px solid #ddd;
+    }
+
+    .stTabs [data-baseweb="tab"]:first-child {
+        border-left: none;
+    }
+
+    .stTabs [data-baseweb="tab-list"] button[aria-selected="true"] {
+        background-color: #782F40;
+        color: white;
     }
     </style>
 """
