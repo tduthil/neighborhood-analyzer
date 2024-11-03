@@ -27,14 +27,14 @@ def get_unit_stats(df: pd.DataFrame, headers: dict):
     
     # Group by unit type
     grouped = df.groupby([beds_col, baths_col, sqft_col]).agg({
-        'price_clean': ['mean', 'count', 'min', 'max']
+        'price_clean': ['median', 'count', 'min', 'max']
     }).reset_index()
     
-    # Calculate price per sqft
-    grouped['price_per_sqft'] = grouped['price_clean']['mean'] / grouped[sqft_col].astype(float)
+    # Calculate median price per sqft
+    grouped['median_price_per_sqft'] = grouped['price_clean']['median'] / grouped[sqft_col].astype(float)
     
     # Rename columns for clarity
-    grouped.columns = ['Beds', 'Baths', 'Sq. Ft', 'Avg Price', 'Count', 'Min Price', 'Max Price', 'Price/SqFt']
+    grouped.columns = ['Beds', 'Baths', 'Sq. Ft', 'Median Price', 'Count', 'Min Price', 'Max Price', 'Median Price/SqFt']
     
     return grouped.sort_values(['Beds', 'Baths', 'Sq. Ft'])
 
@@ -42,10 +42,10 @@ def display_unit_analysis(unit_stats: pd.DataFrame):
     """Display unit statistics in a formatted table."""
     # Format numeric columns
     formatted_stats = unit_stats.copy()
-    formatted_stats['Avg Price'] = formatted_stats['Avg Price'].map('${:,.2f}'.format)
+    formatted_stats['Median Price'] = formatted_stats['Median Price'].map('${:,.2f}'.format)
     formatted_stats['Min Price'] = formatted_stats['Min Price'].map('${:,.2f}'.format)
     formatted_stats['Max Price'] = formatted_stats['Max Price'].map('${:,.2f}'.format)
-    formatted_stats['Price/SqFt'] = formatted_stats['Price/SqFt'].map('${:,.2f}'.format)
+    formatted_stats['Median Price/SqFt'] = formatted_stats['Median Price/SqFt'].map('${:,.2f}'.format)
     
     # Apply styling
     styled_df = formatted_stats.style.set_properties(**{
@@ -113,26 +113,35 @@ def display_unit_analysis(unit_stats: pd.DataFrame):
         hide_index=True
     )
 
-
 def display_unit_price_charts(unit_stats: pd.DataFrame):
     """Display visualizations of price/sqft by unit type."""
-    fig = px.bar(
+    fig = px.box(
         unit_stats,
         x='Beds',
-        y='Price/SqFt',
-        color='Baths',
-        title='Average Price per Square Foot by Unit Type',
-        error_y='Count',  # Shows volume as error bars
-        barmode='group',
-        hover_data=['Sq. Ft', 'Count']
+        y='Median Price/SqFt',
+        title='Price per Square Foot Distribution by Bedroom Count',
+        points='all',  # Shows all points
+        color='Beds',
+        hover_data=['Baths', 'Sq. Ft', 'Count']
     )
     
     fig.update_layout(
         plot_bgcolor='#0E1117',
         paper_bgcolor='#0E1117',
         font={'color': 'white'},
-        xaxis={'title': 'Bedrooms'},
-        yaxis={'title': 'Price per Square Foot ($)'}
+        xaxis={
+            'title': 'Bedrooms',
+            'gridcolor': 'rgba(255, 255, 255, 0.1)',
+            'title_font': {'color': 'white'},
+            'tickfont': {'color': 'white'}
+        },
+        yaxis={
+            'title': 'Price per Square Foot ($)',
+            'gridcolor': 'rgba(255, 255, 255, 0.1)',
+            'title_font': {'color': 'white'},
+            'tickfont': {'color': 'white'}
+        },
+        showlegend=False
     )
     
     st.plotly_chart(fig, use_container_width=True)

@@ -114,7 +114,7 @@ def preprocess_seminole_format(file_content):
                     processed_data.append({
                         'Property Address': current_address,
                         'Date': date.group(0),
-                        'Sale Amount': price_val,  # Store as float
+                        'Sale Amount': price_val,
                         'Bed': bed,
                         'Bath': bath,
                         'Living': sqft
@@ -180,7 +180,11 @@ def main():
             stats = analyzer.get_basic_stats()
             
             # Create tabs for different analyses
-            tab1, tab2, tab3 = st.tabs(["Neighborhood Overview", "Unit Analysis", "Subject Property Analysis"])
+            tab1, tab2, tab3 = st.tabs([
+                "📊 Neighborhood Overview", 
+                "🏘️ Unit Analysis", 
+                "🎯 Subject Property Analysis"
+            ])
             
             with tab1:
                 # Existing neighborhood metrics and charts
@@ -225,19 +229,19 @@ def main():
                     col1, col2, col3 = st.columns(3)
                     
                     with col1:
-                        neighborhood_avg = comparison_results['neighborhood_avg']
-                        display_value = f"${neighborhood_avg:,.2f}" if pd.notna(neighborhood_avg) else "No Data"
-                        st.metric("Neighborhood Avg", display_value)
+                        neighborhood_median = comparison_results['neighborhood_median']
+                        display_value = f"${neighborhood_median:,.2f}" if pd.notna(neighborhood_median) else "No Data"
+                        st.metric("Neighborhood Median", display_value)
                     
                     with col2:
-                        similar_avg = comparison_results['similar_models_avg']
-                        display_value = f"${similar_avg:,.2f}" if pd.notna(similar_avg) else "No Similar Models Found"
-                        st.metric("Similar Models Avg", display_value)
+                        similar_median = comparison_results['similar_models_median']
+                        display_value = f"${similar_median:,.2f}" if pd.notna(similar_median) else "No Similar Models Found"
+                        st.metric("Similar Models Median", display_value)
                     
                     with col3:
-                        exact_avg = comparison_results['exact_models_avg']
-                        display_value = f"${exact_avg:,.2f}" if pd.notna(exact_avg) else "No Exact Matches Found"
-                        st.metric("Exact Models Avg", display_value)
+                        exact_median = comparison_results['exact_models_median']
+                        display_value = f"${exact_median:,.2f}" if pd.notna(exact_median) else "No Exact Matches Found"
+                        st.metric("Exact Models Median", display_value)
                     
                     # Decision and visualization
                     decision_color = {

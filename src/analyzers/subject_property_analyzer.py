@@ -25,12 +25,12 @@ class SubjectPropertyAnalyzer:
             # If already numeric, just copy
             self.df['price_clean'] = pd.to_numeric(self.df[price_col], errors='coerce')
     
-    def get_neighborhood_avg(self):
-        """Get neighborhood average price."""
-        return self.df['price_clean'].mean()
+    def get_neighborhood_median(self):
+        """Get neighborhood median price."""
+        return self.df['price_clean'].median()
     
-    def get_exact_models_avg(self):
-        """Get average price for exact matches (beds, baths, sqft)."""
+    def get_exact_models_median(self):
+        """Get median price for exact matches (beds, baths, sqft)."""
         beds_col = self.headers['beds']
         baths_col = self.headers['baths']
         sqft_col = self.headers['sqft']
@@ -45,21 +45,21 @@ class SubjectPropertyAnalyzer:
         )
         
         matches = self.df[mask]
-        return matches['price_clean'].mean() if not matches.empty else np.nan
+        return matches['price_clean'].median() if not matches.empty else np.nan
     
-    def get_similar_models_avg(self):
-        """Get average price for similar models (same beds)."""
+    def get_similar_models_median(self):
+        """Get median price for similar models (same beds)."""
         beds_col = self.headers['beds']
         mask = (pd.to_numeric(self.df[beds_col], errors='coerce') == self.subject['beds'])
         matches = self.df[mask]
-        return matches['price_clean'].mean() if not matches.empty else np.nan
+        return matches['price_clean'].median() if not matches.empty else np.nan
     
     def get_comparison_results(self):
         """Get all comparison metrics."""
         return {
-            'neighborhood_avg': self.get_neighborhood_avg(),
-            'exact_models_avg': self.get_exact_models_avg(),
-            'similar_models_avg': self.get_similar_models_avg(),
+            'neighborhood_median': self.get_neighborhood_median(),
+            'exact_models_median': self.get_exact_models_median(),
+            'similar_models_median': self.get_similar_models_median(),
             'subject_price': self.subject['price']
         }
     
@@ -67,11 +67,11 @@ class SubjectPropertyAnalyzer:
         """Get decision based on comparison results."""
         results = self.get_comparison_results()
         
-        # Count how many averages are above subject price
+        # Count how many medians are above subject price
         comps = [
-            results['neighborhood_avg'],
-            results['exact_models_avg'],
-            results['similar_models_avg']
+            results['neighborhood_median'],
+            results['exact_models_median'],
+            results['similar_models_median']
         ]
         
         valid_comps = [comp for comp in comps if not np.isnan(comp)]
@@ -104,16 +104,16 @@ class SubjectPropertyAnalyzer:
         # Add vertical lines for comparisons
         comparisons = {
             'Subject Price': results['subject_price'],
-            'Neighborhood Avg': results['neighborhood_avg'],
-            'Similar Models Avg': results['similar_models_avg'],
-            'Exact Models Avg': results['exact_models_avg']
+            'Neighborhood Median': results['neighborhood_median'],
+            'Similar Models Median': results['similar_models_median'],
+            'Exact Models Median': results['exact_models_median']
         }
         
         colors = {
             'Subject Price': '#FF4B4B',      # Brighter red
-            'Neighborhood Avg': '#00CED1',    # Bright turquoise
-            'Similar Models Avg': '#50C878',  # Emerald green
-            'Exact Models Avg': '#BA55D3'     # Bright purple
+            'Neighborhood Median': '#00CED1', # Bright turquoise
+            'Similar Models Median': '#50C878', # Emerald green
+            'Exact Models Median': '#BA55D3'  # Bright purple
         }
         
         # Calculate range for positioning labels
@@ -126,9 +126,9 @@ class SubjectPropertyAnalyzer:
         # Position labels at different y-coordinates
         label_positions = {
             'Subject Price': 1.15,
-            'Neighborhood Avg': 1.10,
-            'Similar Models Avg': 1.05,
-            'Exact Models Avg': 1.00
+            'Neighborhood Median': 1.10,
+            'Similar Models Median': 1.05,
+            'Exact Models Median': 1.00
         }
         
         # Add lines and labels with different positions
@@ -143,10 +143,10 @@ class SubjectPropertyAnalyzer:
                         'y': label_positions[name],
                         'yref': 'paper',
                         'showarrow': False,
-                        'font': {'size': 12, 'color': colors[name]},  # Increased font size from 10 to 12
+                        'font': {'size': 12, 'color': colors[name]},
                         'bgcolor': 'rgba(14, 17, 23, 0.8)',
                         'bordercolor': colors[name],
-                        'borderwidth': 2,  # Increased from 1 to 2 for more visibility
+                        'borderwidth': 2,
                         'borderpad': 4,
                         'align': 'center'
                     }
@@ -160,33 +160,33 @@ class SubjectPropertyAnalyzer:
                 'x': 0.5,
                 'xanchor': 'center',
                 'yanchor': 'top',
-                'font': {'color': 'white'}  # White text for title
+                'font': {'color': 'white'}
             },
             xaxis_title="Price",
             yaxis_title="Number of Sales",
             showlegend=True,
             margin={'t': 100, 'b': 50, 'l': 50, 'r': 50},
             height=500,
-            plot_bgcolor='#0E1117',    # Dark background
-            paper_bgcolor='#0E1117',   # Dark background
-            font={'color': 'white'},   # White text for all labels
+            plot_bgcolor='#0E1117',
+            paper_bgcolor='#0E1117',
+            font={'color': 'white'},
             xaxis={
-                'gridcolor': 'rgba(255, 255, 255, 0.1)',  # Subtle grid
+                'gridcolor': 'rgba(255, 255, 255, 0.1)',
                 'showgrid': True,
                 'zeroline': False,
-                'title': {'font': {'color': 'white'}},    # White axis title
-                'tickfont': {'color': 'white'}            # White tick labels
+                'title': {'font': {'color': 'white'}},
+                'tickfont': {'color': 'white'}
             },
             yaxis={
-                'gridcolor': 'rgba(255, 255, 255, 0.1)',  # Subtle grid
+                'gridcolor': 'rgba(255, 255, 255, 0.1)',
                 'showgrid': True,
                 'zeroline': False,
-                'title': {'font': {'color': 'white'}},    # White axis title
-                'tickfont': {'color': 'white'}            # White tick labels
+                'title': {'font': {'color': 'white'}},
+                'tickfont': {'color': 'white'}
             },
             legend={
-                'font': {'color': 'white'},               # White legend text
-                'bgcolor': 'rgba(14, 17, 23, 0.8)'        # Semi-transparent dark background
+                'font': {'color': 'white'},
+                'bgcolor': 'rgba(14, 17, 23, 0.8)'
             }
         )
         
