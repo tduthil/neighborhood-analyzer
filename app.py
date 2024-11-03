@@ -132,7 +132,7 @@ def preprocess_seminole_format(file_content):
 def read_standard_csv(file_content):
     """Read a standard CSV file."""
     return pd.read_csv(io.BytesIO(file_content))
-
+	
 def main():
     st.set_page_config(
         page_title="Neighborhood Analyzer",
@@ -170,14 +170,112 @@ def main():
             # Continue with analysis
             mapped_headers = HeaderMapper.identify_headers(df)
             
-            is_valid, message = DataValidator.validate_data(df, mapped_headers)
+            # Clean data for filtering
+            price_col = mapped_headers['price']
+            beds_col = mapped_headers['beds']
+            baths_col = mapped_headers['baths']
+            sqft_col = mapped_headers['sqft']
+            
+            # Clean price data
+            if df[price_col].dtype == object:
+                df['price_clean'] = pd.to_numeric(
+                    df[price_col].astype(str).str.replace('$', '').str.replace(',', ''), 
+                    errors='coerce'
+                )
+            else:
+                df['price_clean'] = pd.to_numeric(df[price_col], errors='coerce')
+            
+            # Clean other numeric columns
+            df['beds_clean'] = pd.to_numeric(df[beds_col], errors='coerce')
+            df['baths_clean'] = pd.to_numeric(df[baths_col], errors='coerce')
+            df['sqft_clean'] = pd.to_numeric(df[sqft_col], errors='coerce')
+            
+            # Add filter section
+            st.write("---")
+            st.subheader("Filters")
+            
+            # Price and Reset row
+            filter_row1_col1, filter_row1_col2, filter_row1_col3 = st.columns([2, 2, 1])
+            
+            with filter_row1_col1:
+                price_range = st.slider(
+                    "Price Range ($)",
+                    min_value=int(df['price_clean'].min()),
+                    max_value=int(df['price_clean'].max()),
+                    value=(int(df['price_clean'].min()), int(df['price_clean'].max())),
+                    step=5000,
+                    format="$%d"
+                )
+            
+            # Property characteristics filter row
+            filter_row2_col1, filter_row2_col2, filter_row2_col3 = st.columns(3)
+            
+            with filter_row2_col1:
+                # Get unique bedroom values and sort them
+                bed_values = df['beds_clean'].dropna().unique()
+                bed_options = sorted([int(x) for x in bed_values if float(x).is_integer()])
+                selected_beds = st.multiselect(
+                    "Number of Bedrooms",
+                    options=[str(x) for x in bed_options],
+                    default=[str(x) for x in bed_options],
+                    format_func=lambda x: f"{int(float(x))} Beds"
+                )
+                # Convert selected values back to numbers for filtering
+                selected_beds_nums = [float(x) for x in selected_beds]
+            
+            with filter_row2_col2:
+                # Get unique bathroom values and sort them
+                bath_values = df['baths_clean'].dropna().unique()
+                bath_options = sorted([float(x) for x in bath_values])
+                selected_baths = st.multiselect(
+                    "Number of Bathrooms",
+                    options=[str(x) for x in bath_options],
+                    default=[str(x) for x in bath_options],
+                    format_func=lambda x: f"{float(x)} Baths"
+                )
+                # Convert selected values back to numbers for filtering
+                selected_baths_nums = [float(x) for x in selected_baths]
+            
+            with filter_row2_col3:
+                sqft_range = st.slider(
+                    "Square Feet",
+                    min_value=int(df['sqft_clean'].min()),
+                    max_value=int(df['sqft_clean'].max()),
+                    value=(int(df['sqft_clean'].min()), int(df['sqft_clean'].max())),
+                    step=100
+                )
+            
+            # Apply all filters
+            mask = (
+                (df['price_clean'] >= price_range[0]) & 
+                (df['price_clean'] <= price_range[1]) &
+                (df['beds_clean'].isin(selected_beds_nums)) &
+                (df['baths_clean'].isin(selected_baths_nums)) &
+                (df['sqft_clean'] >= sqft_range[0]) & 
+                (df['sqft_clean'] <= sqft_range[1])
+            )
+            filtered_df = df[mask]
+            
+            with filter_row1_col2:
+                st.metric("Properties Shown", f"{len(filtered_df)} of {len(df)}")
+            
+            with filter_row1_col3:
+                if st.button("Reset Filters", use_container_width=True):
+                    st.experimental_rerun()
+            
+            is_valid, message = DataValidator.validate_data(filtered_df, mapped_headers)
             
             if not is_valid:
                 st.error(message)
                 return
             
-            analyzer = NeighborhoodAnalyzer(df, mapped_headers)
+            analyzer = NeighborhoodAnalyzer(filtered_df, mapped_headers)
             stats = analyzer.get_basic_stats()
+            
+            # Add divider and spacing after filters
+            st.markdown("---")
+            st.write("")  # Add vertical space
+            st.write("")  # Add another line of vertical space
             
             # Create tabs for different analyses
             tab1, tab2, tab3 = st.tabs([
@@ -194,7 +292,7 @@ def main():
                 with col1:
                     if 'date' in mapped_headers:
                         price_trends = create_price_trends_chart(
-                            df, 
+                            filtered_df, 
                             mapped_headers['date'], 
                             mapped_headers['price']
                         )
@@ -202,7 +300,7 @@ def main():
                 
                 with col2:
                     price_dist = create_price_distribution_chart(
-                        df,
+                        filtered_df,
                         mapped_headers['price']
                     )
                     st.plotly_chart(price_dist, use_container_width=True)
@@ -210,11 +308,20 @@ def main():
             with tab2:
                 st.subheader("Price Analysis by Unit Type")
                 # Add the unit breakdown analysis
-                unit_stats = get_unit_stats(df, mapped_headers)
+                unit_stats = get_unit_stats(filtered_df, mapped_headers)
                 display_unit_analysis(unit_stats)
                 
-                # Option to show visualization of price/sqft by unit type
-                if st.checkbox("Show Price/Sqft Distribution by Unit Type"):
+                # Center the button with columns
+                col1, col2, col3 = st.columns([1, 2, 1])
+                with col2:
+                    show_chart = st.button(
+                        "📈 Show Price/Sqft Distribution",
+                        use_container_width=True,
+                        type="primary"  # This gives it the brand color
+                    )
+                
+                if show_chart:
+                    st.write("")  # Add some space before the chart
                     display_unit_price_charts(unit_stats)
             
             with tab3:
@@ -222,7 +329,7 @@ def main():
                 subject_property = get_subject_property_details()
                 
                 if all(subject_property.values()): # Check if all fields are filled
-                    analyzer = SubjectPropertyAnalyzer(df, mapped_headers, subject_property)
+                    analyzer = SubjectPropertyAnalyzer(filtered_df, mapped_headers, subject_property)
                     comparison_results = analyzer.get_comparison_results()
                     decision = analyzer.get_decision()
                     
@@ -256,8 +363,14 @@ def main():
                     
                     analyzer.plot_comparison_chart()
             
-            with st.expander("View Raw Data"):
-                st.dataframe(df)
+            with st.expander("View Data"):
+                tab1, tab2 = st.tabs(["Filtered Data", "All Data"])
+                with tab1:
+                    st.dataframe(filtered_df)
+                    st.write(f"Showing {len(filtered_df)} records")
+                with tab2:
+                    st.dataframe(df)
+                    st.write(f"Total {len(df)} records")
             
         except Exception as e:
             st.error(f"Error processing file: {str(e)}")
