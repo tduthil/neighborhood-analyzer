@@ -54,6 +54,8 @@ def detect_county(filename):
         return 'Orange County'
     elif 'baylake' in filename:
         return 'Orange County'
+    elif 'hillsborough' in filename:
+        return 'Hillsborough County'
     else:
         return 'Unknown County'
 
@@ -66,6 +68,8 @@ def detect_file_format(file_content, filename):
         return 'seminole_format'
     elif 'sep=$' in content_str:
         return 'dollar_delimited'
+    elif 'TotalHeatedAreaSqFt' in content_str and 'LastSalePrice' in content_str:
+        return 'hillsborough_format'
     else:
         return 'standard_csv'
 
@@ -132,6 +136,25 @@ def preprocess_seminole_format(file_content):
 def read_standard_csv(file_content):
     """Read a standard CSV file."""
     return pd.read_csv(io.BytesIO(file_content))
+
+def preprocess_hillsborough_format(file_content):
+    """Preprocess the Hillsborough County format."""
+    df = pd.read_csv(io.BytesIO(file_content))
+    
+    # Rename columns to match the standard format
+    df.rename(columns={
+        'SiteAddress': 'Property Address',
+        'LastSalePrice': 'Sale Amount',  # Price column
+        'TotalBedrooms': 'Bed',
+        'TotalBathrooms': 'Bath',
+        'TotalHeatedAreaSqFt': 'Living',  # Square footage column
+        'LastSaleDate': 'Date'
+    }, inplace=True)
+    
+    # Convert date column to datetime
+    df['Date'] = pd.to_datetime(df['Date'])
+    
+    return df
 	
 def main():
     st.set_page_config(
@@ -164,11 +187,19 @@ def main():
                 df = preprocess_seminole_format(file_content)
             elif file_format == 'dollar_delimited':
                 df = read_dollar_delimited(file_content)
+            elif file_format == 'hillsborough_format':
+                df = preprocess_hillsborough_format(file_content)
             else:
                 df = read_standard_csv(file_content)
             
             # Continue with analysis
             mapped_headers = HeaderMapper.identify_headers(df)
+            
+            is_valid, message = DataValidator.validate_data(df, mapped_headers)
+            
+            if not is_valid:
+                st.error(message)
+                return
             
             # Clean data for filtering
             price_col = mapped_headers['price']
@@ -197,12 +228,26 @@ def main():
             # Price and Reset row
             filter_row1_col1, filter_row1_col2, filter_row1_col3 = st.columns([2, 2, 1])
             
+           # Initialize session state variables for filters
+            if 'price_range' not in st.session_state:
+                st.session_state.price_range = (int(df['price_clean'].min()), int(df['price_clean'].max()))
+            if 'selected_beds' not in st.session_state:
+                bed_values = df['beds_clean'].dropna().unique()
+                bed_options = sorted([int(x) for x in bed_values if float(x).is_integer()])
+                st.session_state.selected_beds = [str(x) for x in bed_options]
+            if 'selected_baths' not in st.session_state:
+                bath_values = df['baths_clean'].dropna().unique()
+                bath_options = sorted([float(x) for x in bath_values])
+                st.session_state.selected_baths = [str(x) for x in bath_options]
+            if 'sqft_range' not in st.session_state:
+                st.session_state.sqft_range = (int(df['sqft_clean'].min()), int(df['sqft_clean'].max()))
+
             with filter_row1_col1:
-                price_range = st.slider(
+                st.session_state.price_range = st.slider(
                     "Price Range ($)",
                     min_value=int(df['price_clean'].min()),
                     max_value=int(df['price_clean'].max()),
-                    value=(int(df['price_clean'].min()), int(df['price_clean'].max())),
+                    value=st.session_state.price_range,
                     step=5000,
                     format="$%d"
                 )
@@ -214,27 +259,45 @@ def main():
                 # Get unique bedroom values and sort them
                 bed_values = df['beds_clean'].dropna().unique()
                 bed_options = sorted([int(x) for x in bed_values if float(x).is_integer()])
-                selected_beds = st.multiselect(
+                
+                # Update session state if bed_options is empty
+                if not bed_options:
+                    st.session_state.selected_beds = []
+                
+                # Update session state if selected_beds not in bed_options
+                if not set(st.session_state.selected_beds).issubset(set(map(str, bed_options))):
+                    st.session_state.selected_beds = [str(x) for x in bed_options]
+                
+                st.session_state.selected_beds = st.multiselect(
                     "Number of Bedrooms",
                     options=[str(x) for x in bed_options],
-                    default=[str(x) for x in bed_options],
+                    default=st.session_state.selected_beds,
                     format_func=lambda x: f"{int(float(x))} Beds"
                 )
                 # Convert selected values back to numbers for filtering
-                selected_beds_nums = [float(x) for x in selected_beds]
-            
+                selected_beds_nums = [float(x) for x in st.session_state.selected_beds]
+
             with filter_row2_col2:
                 # Get unique bathroom values and sort them
                 bath_values = df['baths_clean'].dropna().unique()
                 bath_options = sorted([float(x) for x in bath_values])
-                selected_baths = st.multiselect(
+                
+                # Update session state if bath_options is empty
+                if not bath_options:
+                    st.session_state.selected_baths = []
+                
+                # Update session state if selected_baths not in bath_options
+                if not set(st.session_state.selected_baths).issubset(set(map(str, bath_options))):
+                    st.session_state.selected_baths = [str(x) for x in bath_options]
+                
+                st.session_state.selected_baths = st.multiselect(
                     "Number of Bathrooms",
                     options=[str(x) for x in bath_options],
-                    default=[str(x) for x in bath_options],
+                    default=st.session_state.selected_baths,
                     format_func=lambda x: f"{float(x)} Baths"
                 )
                 # Convert selected values back to numbers for filtering
-                selected_baths_nums = [float(x) for x in selected_baths]
+                selected_baths_nums = [float(x) for x in st.session_state.selected_baths]
             
             with filter_row2_col3:
                 min_sqft = int(df['sqft_clean'].min())
@@ -244,22 +307,22 @@ def main():
                 if min_sqft == max_sqft:
                     min_sqft = max(0, min_sqft - 100)
                 
-                sqft_range = st.slider(
+                st.session_state.sqft_range = st.slider(
                     "Square Feet",
                     min_value=min_sqft,
                     max_value=max_sqft,
-                    value=(min_sqft, max_sqft),
+                    value=st.session_state.sqft_range,
                     step=100
                 )
             
             # Apply all filters
             mask = (
-                (df['price_clean'] >= price_range[0]) & 
-                (df['price_clean'] <= price_range[1]) &
+                (df['price_clean'] >= st.session_state.price_range[0]) & 
+                (df['price_clean'] <= st.session_state.price_range[1]) &
                 (df['beds_clean'].isin(selected_beds_nums)) &
                 (df['baths_clean'].isin(selected_baths_nums)) &
-                (df['sqft_clean'] >= sqft_range[0]) & 
-                (df['sqft_clean'] <= sqft_range[1])
+                (df['sqft_clean'] >= st.session_state.sqft_range[0]) & 
+                (df['sqft_clean'] <= st.session_state.sqft_range[1])
             )
             filtered_df = df[mask]
             
@@ -268,13 +331,10 @@ def main():
             
             with filter_row1_col3:
                 if st.button("Reset Filters", use_container_width=True):
-                    st.experimental_rerun()
-            
-            is_valid, message = DataValidator.validate_data(filtered_df, mapped_headers)
-            
-            if not is_valid:
-                st.error(message)
-                return
+                    st.session_state.price_range = (int(df['price_clean'].min()), int(df['price_clean'].max()))
+                    st.session_state.selected_beds = [str(x) for x in bed_options]
+                    st.session_state.selected_baths = [str(x) for x in bath_options]
+                    st.session_state.sqft_range = (int(df['sqft_clean'].min()), int(df['sqft_clean'].max()))
             
             analyzer = NeighborhoodAnalyzer(filtered_df, mapped_headers)
             stats = analyzer.get_basic_stats()
@@ -303,7 +363,7 @@ def main():
                             mapped_headers['date'], 
                             mapped_headers['price']
                         )
-                        st.plotly_chart(price_trends, use_container_width=True)
+                    st.plotly_chart(price_trends, use_container_width=True)
                 
                 with col2:
                     price_dist = create_price_distribution_chart(
