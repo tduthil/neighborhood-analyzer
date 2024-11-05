@@ -3,12 +3,12 @@ BRAND_COLOR = "#782F40"
 
 #header mappings for configuration
 HEADER_MAPPINGS = {
-    'price': ['price', 'saleamount', 'sale amount', 'sale price', 'amount', 'Sale Amount', 'LastSalePrice'],
-    'address': ['address', 'property address', 'location', 'street address', 'Property Address', 'SiteAddress'],
-    'beds': ['beds', 'bedrooms', 'br', 'number of bedrooms', 'Bed', 'Bedrooms', 'TotalBedrooms'],
-    'baths': ['baths', 'bathrooms', 'ba', 'number of bathrooms', 'Bath', 'Bathrooms', 'TotalBathrooms'],
-    'sqft': ['sqft', 'square feet', 'squarefeet', 'living area', 'size', 'SqFt', 'Living', 'TotalHeatedAreaSqFt'],
-    'date': ['date', 'saledate', 'sale date', 'transaction date', 'Date Sold', 'Date', 'LastSaleDate']
+    'price': ['price', 'saleamount', 'sale amount', 'sale price', 'amount', 'value', 'Sale Amount'],
+    'address': ['address', 'property address', 'location', 'street address', 'Property Address'],
+    'beds': ['beds', 'bedrooms', 'br', 'number of bedrooms', 'Bed', 'Bedrooms'],
+    'baths': ['baths', 'bathrooms', 'ba', 'number of bathrooms', 'Bath', 'Bathrooms'],
+    'sqft': ['sqft', 'square feet', 'squarefeet', 'living area', 'size', 'SqFt', 'Living'],
+    'date': ['date', 'saledate', 'sale date', 'transaction date', 'Date Sold', 'Date']
 }
 
 # Required fields for analysis

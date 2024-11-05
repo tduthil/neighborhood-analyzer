@@ -42,15 +42,10 @@ def display_unit_analysis(unit_stats: pd.DataFrame):
     """Display unit statistics in a formatted table."""
     # Format numeric columns
     formatted_stats = unit_stats.copy()
-    formatted_stats['Median Price'] = formatted_stats['Median Price'].map('${:,.0f}'.format)
-    formatted_stats['Min Price'] = formatted_stats['Min Price'].map('${:,.0f}'.format)
-    formatted_stats['Max Price'] = formatted_stats['Max Price'].map('${:,.0f}'.format)
+    formatted_stats['Median Price'] = formatted_stats['Median Price'].map('${:,.2f}'.format)
+    formatted_stats['Min Price'] = formatted_stats['Min Price'].map('${:,.2f}'.format)
+    formatted_stats['Max Price'] = formatted_stats['Max Price'].map('${:,.2f}'.format)
     formatted_stats['Median Price/SqFt'] = formatted_stats['Median Price/SqFt'].map('${:,.2f}'.format)
-    
-    # Format beds, baths, and square feet columns
-    formatted_stats['Beds'] = formatted_stats['Beds'].astype(int)
-    formatted_stats['Baths'] = formatted_stats['Baths'].map('{:.1f}'.format)
-    formatted_stats['Sq. Ft'] = formatted_stats['Sq. Ft'].astype(int)
     
     # Apply styling
     styled_df = formatted_stats.style.set_properties(**{
