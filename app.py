@@ -237,11 +237,18 @@ def main():
                 selected_baths_nums = [float(x) for x in selected_baths]
             
             with filter_row2_col3:
+                min_sqft = int(df['sqft_clean'].min())
+                max_sqft = int(df['sqft_clean'].max())
+                
+                # Set a different min_value if min_sqft and max_sqft are equal
+                if min_sqft == max_sqft:
+                    min_sqft = max(0, min_sqft - 100)
+                
                 sqft_range = st.slider(
                     "Square Feet",
-                    min_value=int(df['sqft_clean'].min()),
-                    max_value=int(df['sqft_clean'].max()),
-                    value=(int(df['sqft_clean'].min()), int(df['sqft_clean'].max())),
+                    min_value=min_sqft,
+                    max_value=max_sqft,
+                    value=(min_sqft, max_sqft),
                     step=100
                 )
             
