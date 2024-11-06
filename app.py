@@ -221,6 +221,19 @@ def main():
             df['baths_clean'] = pd.to_numeric(df[baths_col], errors='coerce')
             df['sqft_clean'] = pd.to_numeric(df[sqft_col], errors='coerce')
             
+            # Initialize session state variables for filters
+            st.session_state.price_range = (int(df['price_clean'].min()), int(df['price_clean'].max()))
+            
+            bed_values = df['beds_clean'].dropna().unique()
+            bed_options = sorted([int(x) for x in bed_values if float(x).is_integer()])
+            st.session_state.selected_beds = [str(x) for x in bed_options]
+            
+            bath_values = df['baths_clean'].dropna().unique()
+            bath_options = sorted([float(x) for x in bath_values])
+            st.session_state.selected_baths = [str(x) for x in bath_options]
+            
+            st.session_state.sqft_range = (int(df['sqft_clean'].min()), int(df['sqft_clean'].max()))
+            
             # Add filter section
             st.write("---")
             st.subheader("Filters")
@@ -228,20 +241,6 @@ def main():
             # Price and Reset row
             filter_row1_col1, filter_row1_col2, filter_row1_col3 = st.columns([2, 2, 1])
             
-           # Initialize session state variables for filters
-            if 'price_range' not in st.session_state:
-                st.session_state.price_range = (int(df['price_clean'].min()), int(df['price_clean'].max()))
-            if 'selected_beds' not in st.session_state:
-                bed_values = df['beds_clean'].dropna().unique()
-                bed_options = sorted([int(x) for x in bed_values if float(x).is_integer()])
-                st.session_state.selected_beds = [str(x) for x in bed_options]
-            if 'selected_baths' not in st.session_state:
-                bath_values = df['baths_clean'].dropna().unique()
-                bath_options = sorted([float(x) for x in bath_values])
-                st.session_state.selected_baths = [str(x) for x in bath_options]
-            if 'sqft_range' not in st.session_state:
-                st.session_state.sqft_range = (int(df['sqft_clean'].min()), int(df['sqft_clean'].max()))
-
             with filter_row1_col1:
                 st.session_state.price_range = st.slider(
                     "Price Range ($)",
@@ -256,18 +255,6 @@ def main():
             filter_row2_col1, filter_row2_col2, filter_row2_col3 = st.columns(3)
             
             with filter_row2_col1:
-                # Get unique bedroom values and sort them
-                bed_values = df['beds_clean'].dropna().unique()
-                bed_options = sorted([int(x) for x in bed_values if float(x).is_integer()])
-                
-                # Update session state if bed_options is empty
-                if not bed_options:
-                    st.session_state.selected_beds = []
-                
-                # Update session state if selected_beds not in bed_options
-                if not set(st.session_state.selected_beds).issubset(set(map(str, bed_options))):
-                    st.session_state.selected_beds = [str(x) for x in bed_options]
-                
                 st.session_state.selected_beds = st.multiselect(
                     "Number of Bedrooms",
                     options=[str(x) for x in bed_options],
@@ -276,20 +263,8 @@ def main():
                 )
                 # Convert selected values back to numbers for filtering
                 selected_beds_nums = [float(x) for x in st.session_state.selected_beds]
-
+            
             with filter_row2_col2:
-                # Get unique bathroom values and sort them
-                bath_values = df['baths_clean'].dropna().unique()
-                bath_options = sorted([float(x) for x in bath_values])
-                
-                # Update session state if bath_options is empty
-                if not bath_options:
-                    st.session_state.selected_baths = []
-                
-                # Update session state if selected_baths not in bath_options
-                if not set(st.session_state.selected_baths).issubset(set(map(str, bath_options))):
-                    st.session_state.selected_baths = [str(x) for x in bath_options]
-                
                 st.session_state.selected_baths = st.multiselect(
                     "Number of Bathrooms",
                     options=[str(x) for x in bath_options],
@@ -363,7 +338,7 @@ def main():
                             mapped_headers['date'], 
                             mapped_headers['price']
                         )
-                    st.plotly_chart(price_trends, use_container_width=True)
+                        st.plotly_chart(price_trends, use_container_width=True)
                 
                 with col2:
                     price_dist = create_price_distribution_chart(
@@ -442,6 +417,6 @@ def main():
         except Exception as e:
             st.error(f"Error processing file: {str(e)}")
             raise e
-
+            
 if __name__ == "__main__":
     main()
