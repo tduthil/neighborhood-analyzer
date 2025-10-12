@@ -2,6 +2,15 @@
 
 Real estate neighborhood analysis tool for multiple Florida counties. Try the app here: [https://neighborhood-analyzer.streamlit.app/]
 
+## Usage
+
+1. Launch the application
+2. Upload property data file
+3. Application automatically:
+   - Detects county format
+   - Processes data
+   - Displays analysis
+
 ## Stable Version: v1.0.0
 
 Current stable version supports:
