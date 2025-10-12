@@ -5,7 +5,7 @@ Real estate neighborhood analysis tool for multiple Florida counties. Try the ap
 ## Usage
 
 1. Launch the application
-2. Upload property data file
+2. Upload property sales data file from county records
 3. Application automatically:
    - Detects county format
    - Processes data
