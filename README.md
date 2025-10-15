@@ -22,6 +22,7 @@ Each county stores and structures property data differently, making comparisons 
 
 The Neighborhood Analyzer was built to address this problem — to streamline real estate analysis through data cleaning, comparison, and automated recommendations.
 
+
 💡 What You’ll Learn
 
 Through this project, you’ll see how data analytics can:
@@ -31,6 +32,7 @@ Turn complex property data into actionable investment insights.
 Standardize inconsistent data across sources.
 
 Enable data-backed recommendations for property buyers and investors.
+
 
 🔑 Key Features & Takeaways
 
@@ -56,6 +58,7 @@ Neighborhood averages
 
 These metrics form the foundation for accurate and comparable neighborhood insights.
 
+
 ⚙️ Analysis Process
 
 Tools Used: Python (Pandas, Matplotlib), Excel
@@ -75,6 +78,7 @@ Categorized properties by investment potential.
 Visualization & Insights:
 
 Created visuals showing undervalued homes, size distributions, and feature-price correlations.
+
 
 📊 Visuals & Insights
 
@@ -126,7 +130,7 @@ If you’re passionate about data or real estate, I’d love to exchange insight
 
 LinkedIn: [Connect w/ Thierry](https://www.linkedin.com/in/tduthil)
 
-Project Dashboard: [App Link](https://neighborhood-analyzer.streamlit.app/)
+Full Project: [App Link](https://neighborhood-analyzer.streamlit.app/)
 
 Full Analysis: [GitHub Repository](https://github.com/tduthil/neighborhood-analyzer)
 
