@@ -78,14 +78,17 @@ Created visuals showing undervalued homes, size distributions, and feature-price
 
 📊 Visuals & Insights
 
-Chart 1 – Property Price vs. Neighborhood Average
-Shows which properties are priced below local norms, highlighting undervalued investment opportunities.
+Chart 1 – Price Trends Over Time
+Shows price trends over time for the neighborhood. Clearly displaying appreciating or depreciating values.
+<img width="1199" height="616" alt="image" src="https://github.com/user-attachments/assets/7900b6db-4ef0-4555-af55-d72e1e33456f" />
 
-Chart 2 – Property Size Distribution
-Illustrates value per square foot and identifies size outliers.
 
-Chart 3 – Amenities vs. Price Correlation
-Analyzes how the number of bedrooms and bathrooms influences property pricing.
+Chart 2 – Price per Square Distribution by Number of Bedrooms
+Illustrates value per square foot distribution by number of bedrooms and identifies price outliers.
+<img width="2268" height="442" alt="image" src="https://github.com/user-attachments/assets/bc77e164-57cc-44e3-9c78-11f1de8a0024" />
+
+Feature 3 – Subject Property Analysis
+View app for this gem ->: https://neighborhood-analyzer.streamlit.app/ Compare subject property details with the comps in the neighborhood.
 
 These visuals reveal how subtle differences in property features can significantly affect appeal and market value.
 
