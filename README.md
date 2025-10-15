@@ -1,81 +1,129 @@
-# Neighborhood Analyzer
+🏡 Neighborhood Analyzer — A Data-Driven Approach to Real Estate Decisions
+Overview
 
-Real estate neighborhood analysis tool for multiple Florida counties. Try the app here: [https://neighborhood-analyzer.streamlit.app/]
+Neighborhood Analyzer is a data analysis project that bridges my passion for real estate and data analytics. The goal: simplify the complex process of evaluating properties by comparing a subject property against neighborhood benchmarks — ultimately helping investors make smarter buy, pass, or investigate decisions.
 
-## Usage
+This project demonstrates how real-world data can transform intuition-driven choices into data-informed investment strategies.
 
-1. Launch the application
-2. Upload property sales data file from county records
-3. Application automatically:
-   - Detects county format
-   - Processes data
-   - Displays analysis
+🧰 Tech Stack
 
-## Stable Version: v1.0.0
+Languages: Python
 
-Current stable version supports:
-- Multiple county formats (Orange, Seminole)
-- Automatic format detection
-- Price analysis and visualization
-- Square footage calculations
-- Property statistics
+Libraries: Pandas, Matplotlib, NumPy
 
-### Supported File Formats
-- Seminole County property data
-- Orange County ($ delimited)
-- Standard CSV format
+Data Source: Public County Property Records (Open Data)
 
-### Supported Features
-- [x] Multi-county support
-- [x] Automatic format detection
-- [x] Price trends analysis
-- [x] Square footage calculations
-- [x] Basic statistics
-- [x] Data visualization
+Tools: Excel, Streamlit
 
-## Setup
+🎯 Why This Project
 
-```bash
-# Clone the repository
-git clone [your-repo-url]
+As a real estate enthusiast and investor, I’ve seen firsthand how difficult it can be to analyze multiple properties across different markets.
+Each county stores and structures property data differently, making comparisons time-consuming and inconsistent.
 
-# Go to stable version
-git checkout v1.0.0
+The Neighborhood Analyzer was built to address this problem — to streamline real estate analysis through data cleaning, comparison, and automated recommendations.
 
-# Install requirements
-pip install -r requirements.txt
+💡 What You’ll Learn
 
-# Run the application
-streamlit run app.py
-```
+Through this project, you’ll see how data analytics can:
 
-## Usage
+Turn complex property data into actionable investment insights.
 
-1. Launch the application
-2. Upload property data file
-3. Application automatically:
-   - Detects county format
-   - Processes data
-   - Displays analysis
+Standardize inconsistent data across sources.
 
-## File Format Support
+Enable data-backed recommendations for property buyers and investors.
 
-### Orange County
-- Supports $ delimited files
-- Standard CSV format
-- Examples: anthemPark.csv, audobonPark.csv, bayLakePreserve.csv
+🔑 Key Features & Takeaways
 
-### Seminole County
-- Supports hierarchical format
-- Example: Sutton Place format
+🧮 Property Comparison Engine: Evaluates a subject property against neighborhood averages (price, size, amenities).
 
-## Development
+🧼 Data Cleaning Across Counties: Handles inconsistent formats in public real estate datasets.
 
-To work on new features:
-```bash
-# Create new feature branch
-git checkout -b feature/new-feature
+📈 Visualization-Driven Insights: Highlights undervalued properties, size-to-value ratios, and amenity-based pricing differences.
 
-# Return to stable version
-git checkout v1.0.0
-```
+💰 Investment Clarity: Turns “good deals” into “great decisions” by surfacing hidden value early.
+
+🧾 Dataset Details
+
+The data comes from public county property records, including:
+
+Property price
+
+Number of bedrooms & bathrooms
+
+Square footage
+
+Neighborhood averages
+
+These metrics form the foundation for accurate and comparable neighborhood insights.
+
+⚙️ Analysis Process
+
+Tools Used: Python (Pandas, Matplotlib), Excel
+
+Data Cleaning:
+
+Resolved missing fields and inconsistent formatting across county datasets.
+
+Standardized property attributes (beds, baths, price per sq. ft.).
+
+Feature Engineering:
+
+Calculated neighborhood averages and price deviations.
+
+Categorized properties by investment potential.
+
+Visualization & Insights:
+
+Created visuals showing undervalued homes, size distributions, and feature-price correlations.
+
+📊 Visuals & Insights
+
+Chart 1 – Property Price vs. Neighborhood Average
+Shows which properties are priced below local norms, highlighting undervalued investment opportunities.
+
+Chart 2 – Property Size Distribution
+Illustrates value per square foot and identifies size outliers.
+
+Chart 3 – Amenities vs. Price Correlation
+Analyzes how the number of bedrooms and bathrooms influences property pricing.
+
+These visuals reveal how subtle differences in property features can significantly affect appeal and market value.
+
+🧠 Main Insights
+
+Data standardization is key to cross-market comparisons.
+
+Even slight variations in amenities can dramatically impact perceived value.
+
+Data-backed recommendations accelerate decision-making and reduce guesswork.
+
+A standardized approach to real estate data could enhance industry-wide efficiency.
+
+🚀 Conclusion
+
+This project reinforced how data analytics can simplify complex real estate decisions.
+The biggest challenge was handling the inconsistency of public data across counties — but overcoming it made the insights more robust and reliable.
+
+By uniting real estate intuition with analytics, the Neighborhood Analyzer demonstrates how data transforms the way we evaluate investments.
+
+🏘️ Recommendations
+
+For real estate professionals and investors:
+
+Use data-driven tools to validate assumptions before making offers.
+
+Compare properties within their true neighborhood context, not just by surface-level price.
+
+Neighborhood Analyzer can evolve into a scalable tool for real estate due diligence, helping users identify opportunities that align with both market trends and personal investment goals.
+
+📬 Call to Action
+
+💬 Let’s connect!
+If you’re passionate about data or real estate, I’d love to exchange insights.
+
+LinkedIn: [Connect w/ Thierry](https://www.linkedin.com/in/tduthil)
+
+Project Dashboard: [App Link](https://neighborhood-analyzer.streamlit.app/)
+
+Full Analysis: [GitHub Repository](https://github.com/tduthil/neighborhood-analyzer)
+
