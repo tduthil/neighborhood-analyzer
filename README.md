@@ -58,6 +58,11 @@ Neighborhood averages
 
 These metrics form the foundation for accurate and comparable neighborhood insights.
 
+Quick usage notes:
+1. Search:->redfin.com
+2. Download All (csv file from bottom of search results)
+3. Upload to project
+
 
 ⚙️ Analysis Process
 
