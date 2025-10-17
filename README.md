@@ -102,7 +102,7 @@ Feature 3 – Subject Property Analysis
 
 View app for this gem ->: https://neighborhood-analyzer.streamlit.app/ Compare subject property details with the comps in the neighborhood.
 
-These visuals reveal how subtle differences in property features can significantly affect appeal and market value.
+These visuals reveal the subject property's asking price against the neighborhood market value of similar properties.
 
 🧠 Main Insights
 
