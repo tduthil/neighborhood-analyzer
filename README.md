@@ -102,7 +102,7 @@ Feature 3 – Subject Property Analysis
 
 View app for this gem ->: https://neighborhood-analyzer.streamlit.app/ Compare subject property details with the comps in the neighborhood.
 <img width="1830" height="779" alt="image" src="https://github.com/user-attachments/assets/dbeea6a2-ea23-4168-b993-8f4d6f62a51d" />
-These visuals reveal the subject property's asking price against the neighborhood market value of similar properties.
+These visuals reveal the subject property's asking price against the neighborhood market value of similar properties and provides a recommendation based on requirements.
 
 🧠 Main Insights
 
