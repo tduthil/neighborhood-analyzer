@@ -70,19 +70,19 @@ Tools Used: Python (Pandas, Matplotlib), Excel
 
 Data Cleaning:
 
-Resolved missing fields and inconsistent formatting across county datasets.
-
-Standardized property attributes (beds, baths, price per sq. ft.).
+  * Resolved missing fields and inconsistent formatting across county datasets.
+  
+  * Standardized property attributes (beds, baths, price per sq. ft.).
 
 Feature Engineering:
 
-Calculated neighborhood averages and price deviations.
+  * Calculated neighborhood averages and price deviations.
 
-Categorized properties by investment potential.
+  * Categorized properties by investment potential.
 
 Visualization & Insights:
 
-Created visuals showing undervalued homes, size distributions, and feature-price correlations.
+  * Created visuals showing undervalued homes, size distributions, and feature-price correlations.
 
 
 📊 Visuals & Insights
