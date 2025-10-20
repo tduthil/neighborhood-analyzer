@@ -93,7 +93,7 @@ Shows price trends over time for the neighborhood. Clearly displaying appreciati
 <img width="1199" height="616" alt="image" src="https://github.com/user-attachments/assets/7900b6db-4ef0-4555-af55-d72e1e33456f" />
 
 
-Chart 2 – Price per Square Distribution by Number of Bedrooms
+Chart 2 – Price per Square Ft. Distribution by Number of Bedrooms
 
 Illustrates value per square foot distribution by number of bedrooms and identifies price outliers.
 <img width="2268" height="442" alt="image" src="https://github.com/user-attachments/assets/bc77e164-57cc-44e3-9c78-11f1de8a0024" />
